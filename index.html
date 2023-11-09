@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>Website Title</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+  <!-- <script src="https://storage.googleapis.com/pollfish_production/sdk/webplugin/pollfish.min.js"></script> -->
+  <script defer src="script.js"></script>
+</head>
+
+<body>
+  <div class="header" style="height: auto">
+    <h1 style="display: inline-block; margin: auto 5%;">Website Title</h1>
+    <h1 id="login-header" style="display: inline-block; margin-left: 15%;">Login to get started</h1>
+    <form id="login-form" style="display: inline-block; margin-left: 5px;">
+      <input type="text" name="uuid" id="uuid-field" class="login-form-field" placeholder="uuid">
+      <input type="submit" value="Login" id="login-form-submit">
+    </form>
+    <h1 style="display: inline-block; margin-left: 15%;">Credits: 0</h1>
+  </div>
+
+  <script>
+    var pollfishConfig = {
+      api_key: "194e119c-3d7d-496f-8c27-9dba816c5c62",
+      debug: true
+      // ...,
+    };
+  </script>
+
+  <div id="grid"></div>
+
+  <div id="footer">Join our <a href="discord.com" target="_blank">discord</a></div>
+
+</body>
+
+</html>
