@@ -23,6 +23,30 @@ const mimeTypes = {
 };
 const staticPaths = new Set(['/', '/style.css', '/script.js']);
 
+class Product {
+    constructor(name, description, price, image) {
+        this.name = name;
+        this.description = description;
+        this.price = price;
+        this.image = image;
+    }
+}
+const Products = [
+    new Product('Option 1', 'the description for option 1', 200, 'https://www.w3schools.com/w3images/nature.jpg', 'google.com'),
+    new Product('Option 2', 'the description for option 2', 250, 'https://www.w3schools.com/w3images/nature.jpg', 'google.com'),
+    new Product('Option 3', 'the description for option 3', 250, 'https://www.w3schools.com/w3images/nature.jpg', 'google.com'),
+    new Product('Option 4', 'the description for option 4', 175, 'https://www.w3schools.com/w3images/nature.jpg', 'google.com'),
+    new Product('Option 5', 'the description for option 5', 200, 'https://www.w3schools.com/w3images/nature.jpg', 'google.com'),
+    new Product('Option 6', 'the description for option 6', 300, 'https://www.w3schools.com/w3images/nature.jpg', 'google.com'),
+    new Product('Option 7', 'the description for option 7', 250, 'https://www.w3schools.com/w3images/nature.jpg', 'google.com'),
+    new Product('Option 8', 'the description for option 8', 225, 'https://www.w3schools.com/w3images/nature.jpg', 'google.com'),
+    new Product('Option 9', 'the description for option 9', 275, 'https://www.w3schools.com/w3images/nature.jpg', 'google.com'),
+    new Product('Option 10', 'the description for option 10', 200, 'https://www.w3schools.com/w3images/nature.jpg', 'google.com'),
+    new Product('Option 11', 'the description for option 11', 325, 'https://www.w3schools.com/w3images/nature.jpg', 'google.com'),
+    new Product('Option 12', 'the description for option 12', 150, 'https://www.w3schools.com/w3images/nature.jpg', 'google.com'),
+    new Product('Option 13', 'the description for option 13', 250, 'https://www.w3schools.com/w3images/nature.jpg', 'google.com'),
+];
+
 
 function loadFile(filePath) {
     try {
@@ -30,19 +54,19 @@ function loadFile(filePath) {
         return content;
     }
     catch(err) {
-        console.error("Error on serving " + filePath);
+        console.error('Error on serving ' + filePath);
         return null;
     }
 }
 
 http.createServer(async function (request, response) {
-    let url = new URL("http://" + request.headers.host + request.url);
+    let url = new URL('http://' + request.headers.host + request.url);
     let subPath = url.pathname;
-    console.log('request: ' + subPath);
+    console.log(`(${new Date().toLocaleString('en-GB')}) request: ${subPath}`);
 
     if (staticPaths.has(subPath)) {
         if (subPath == '/') subPath = '/index.html';
-        let content = await loadFile("public" + subPath);
+        let content = await loadFile('public' + subPath);
         if (content === null) {
             response.writeHead(500);
             response.end('An unexpected error was encountered.\n');
@@ -50,9 +74,13 @@ http.createServer(async function (request, response) {
         else {
             let extname = String(path.extname(subPath)).toLowerCase();
             let contentType = mimeTypes[extname] || 'application/octet-stream';
-            response.writeHead(200, { 'Content-Type': contentType });
+            response.writeHead(200, {'Content-Type': contentType});
             response.end(content, 'utf-8');            
         }
+    }
+    else if (subPath == '/data.json') {
+        response.writeHead(200, {'Content-Type': 'application/json'});
+        response.end(JSON.stringify(Products), 'utf-8');
     }
     else {
         response.writeHead(404);
