@@ -84,7 +84,7 @@ http.createServer(async function (request, response) {
     }
     else if (subPath == '/lookup') {
         let uuid = url.searchParams.get('uuid');
-        // SELECT * FROM Database WHERE uuid = uuid
+        // SELECT * FROM UserDatabase WHERE uuid = 'uuid'
         if (uuid == 'user') {
             response.writeHead(200, {'Content-Type': 'application/json'});
             response.end(JSON.stringify({
@@ -97,6 +97,24 @@ http.createServer(async function (request, response) {
             response.writeHead(204);
             response.end();
         }
+    }
+    else if (subPath == '/transact') {
+        let uuid = url.searchParams.get('uuid');
+        let productId = url.searchParams.get('pid');
+        // TODO check if ids exist and respond 412 if not
+        //let result = SELECT price, url FROM ProductDatabase WHERE product_id = 'productId'
+        //let price, url = result[0]
+        //let result = SELECT balance FROM UserDatabase WHERE uuid = 'uuid'
+        //let balance = result[0]
+        //if balance >= price {
+        //    UPDATE UserDatabase SET balance = balance - price WHERE uuid = 'uuid'
+        //    response.writeHead(200, {'Content-Type': 'text/plain'});
+        //    response.end(url, 'utf-8');
+        //}
+        //else {
+        //    response.writeHead(422)
+        //    response.end();
+        //}
     }
     else {
         response.writeHead(404);

@@ -1,6 +1,10 @@
 
 const loginForm = document.getElementById('login-form');
-const loginButton = document.getElementById('login-form-submit');
+const popup = document.getElementById('popup');
+const popupImage = document.getElementById('popup-image');
+const popupName = document.getElementById('popup-name');
+const popupDescription = document.getElementById('popup-description');
+const popupPrice = document.getElementById('popup-price');
 const grid = jQuery('#grid');
 
 const url = new URL(window.location);
@@ -46,7 +50,15 @@ function lookupUuid(uuid, func) {
 
 fetch('http://127.0.0.1:3000/data.json').then(response => {return response.json()}).then(products => {
 	products.forEach(product => {
-		grid.append(`<div class="preview"> <h2>${product.name}</h2> <img src=${product.image}> <div class="price-tag">${product.price}</div></div>`);
+		let productDiv = jQuery(`<div class="preview"> <h2>${product.name}</h2> <img src=${product.image}> <div class="price-tag">${product.price}</div></div>`);
+		productDiv.bind('click', (e) => {
+			popupImage.src = product.image;
+			popupName.innerHTML = product.name;
+			popupDescription.innerHTML = product.description;
+			popupPrice.innerHTML = `Get (${product.price})`;
+			popup.style.display = 'block';
+		});
+		grid.append(productDiv);
 	});
 });
 
@@ -54,8 +66,12 @@ if (uuid !== null) {
 	lookupUuid(uuid, setUser);
 }
 
-loginButton.addEventListener('click', (e) => {
+document.getElementById('login-form-submit').addEventListener('click', (e) => {
     e.preventDefault();
 
     lookupUuid(loginForm.uuid.value, login)
+});
+
+document.getElementById('popup-close-button').addEventListener('click', (e) => {
+    popup.style.display = 'none';
 });
