@@ -82,6 +82,22 @@ http.createServer(async function (request, response) {
         response.writeHead(200, {'Content-Type': 'application/json'});
         response.end(JSON.stringify(Products), 'utf-8');
     }
+    else if (subPath == '/lookup') {
+        let uuid = url.searchParams.get('uuid');
+        // SELECT * FROM Database WHERE uuid = uuid
+        if (uuid == 'user') {
+            response.writeHead(200, {'Content-Type': 'application/json'});
+            response.end(JSON.stringify({
+                uuid: uuid,
+                username: 'username',
+                balance: 400
+            }), 'utf-8');
+        }
+        else {
+            response.writeHead(204);
+            response.end();
+        }
+    }
     else {
         response.writeHead(404);
         response.end('Resource not found.\n');
