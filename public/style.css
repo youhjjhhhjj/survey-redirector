@@ -8,12 +8,14 @@ body {
 }
 
 .header {
+    height: auto;
+    width: 100%;
     background-color: #111;
     padding: 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.5);
 }
 
 h1 {
@@ -67,6 +69,7 @@ form {
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
     transition: transform 0.3s ease-in-out;
     margin-bottom: 20px;
+    cursor: pointer;
 }
 
 .preview:hover {
@@ -128,12 +131,9 @@ form {
 }
 
 #popup {
-    height: 500px;
-    width: 500px;
-    position: absolute;
-    background-color: aquamarine;
-    margin-left: auto;
-    margin-right: auto;
+    position: fixed;
+    margin-left: 15%;
+    margin-right: 15%;
     left: 0;
     right: 0;
     top: 50%;
@@ -142,7 +142,30 @@ form {
     display: none;
 }
 
+#popup-body {
+    background-color: #1f1f1f;
+    height: 100%;
+    width: 100%;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.5);
+}
+
 #popup img {
     width: 50%;
     float: left;
+}
+
+#popup-close-button {
+    position: absolute;
+    top: -5px; right: -5px;
+    height: 30px;
+    width: 30px;
+    line-height: 30px;
+    background-color: #fff;
+    color: #333;
+    border-radius: 50%;
+    text-align: center;
+    font-weight: bolder;
+    cursor: pointer;
 }
