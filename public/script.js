@@ -1,43 +1,51 @@
-
 const loginForm = document.getElementById('login-form');
-const popup = document.getElementById('popup');
-const popupImage = document.getElementById('popup-image');
-const popupName = document.getElementById('popup-name');
-const popupDescription = document.getElementById('popup-description');
-const popupPrice = document.getElementById('popup-price');
+const productPopup = document.getElementById('product-popup');
+const productImage = document.getElementById('product-image');
+const productName = document.getElementById('product-name');
+const productDescription = document.getElementById('product-description');
+const productPrice = document.getElementById('product-price');
+const accountPopup = document.getElementById('account-popup');
+const loginBody = document.getElementById('login');
+const registerBody = document.getElementById('register');
+const loginMessage = document.getElementById('login-message');
+const registerMessage = document.getElementById('register-message');
 const grid = jQuery('#grid');
 
 const url = new URL(window.location);
-var uuid = url.searchParams.get('uuid');
-console.log(uuid);
+var uid = url.searchParams.get('uid');
+console.log(uid);
 
 
 function setUser(user) {
 	console.log(user);
 	if (user != null) {
-		loginForm.remove();
+		document.getElementById('header-buttons').remove();
+		document.getElementById('credits-display').style.display = 'inline-block';
 		jQuery('#login-header').text('Logged in as ' + user.username);
-		jQuery('#points-display').text(user.balance);
+		jQuery('#points').text(user.balance);
 	}
 	else {
-		url.searchParams.delete('uuid');
+		url.searchParams.delete('uid');
 		location.href = url;
 	}
 }
 
 function login(user) {
 	if (user != null) {
-		alert('You have successfully logged in.');
-		url.searchParams.set('uuid', user.uuid);
-		location.href = url;
+		jQuery('body').css('cursor', 'progress');
+		loginMessage.innerHTML = 'You have successfully logged in.';
+		setTimeout(() => {
+			url.searchParams.set('uid', user.uid);
+			location.href = url;
+		}, 1500);	
 	}
 	else {
-		alert('Incorrect uuid, please try again.');
+		loginMessage.innerHTML = 'Incorrect uid, please try again.';
 	}
 }
 
-function lookupUuid(uuid, func) {
-	fetch('http://127.0.0.1:3000/lookup?uuid=' + uuid)
+function lookupUid(uid, func) {
+	fetch(url.origin + '/lookup?uid=' + uid)
 	.then(response => {
 		if (response.status == 200) return response.json();
 		return null;
@@ -48,30 +56,56 @@ function lookupUuid(uuid, func) {
 }
 
 
-fetch('http://127.0.0.1:3000/data.json').then(response => {return response.json()}).then(products => {
+fetch(url.origin + '/data.json').then(response => {return response.json()}).then(products => {
 	products.forEach(product => {
 		let productDiv = jQuery(`<div class="preview"> <h2>${product.name}</h2> <img src=${product.image}> <div class="price-tag">${product.price}</div></div>`);
 		productDiv.bind('click', (e) => {
-			popupImage.src = product.image;
-			popupName.innerHTML = product.name;
-			popupDescription.innerHTML = product.description;
-			popupPrice.innerHTML = `Get (${product.price})`;
-			popup.style.display = 'block';
+			productImage.src = product.image;
+			productName.innerHTML = product.name;
+			productDescription.innerHTML = product.description;
+			productPrice.innerHTML = `Get (${product.price})`;
+			productPopup.style.display = 'block';
 		});
 		grid.append(productDiv);
 	});
 });
 
-if (uuid !== null) {
-	lookupUuid(uuid, setUser);
+if (uid !== null) {
+	lookupUid(uid, setUser);
 }
 
-document.getElementById('login-form-submit').addEventListener('click', (e) => {
-    e.preventDefault();
-
-    lookupUuid(loginForm.uuid.value, login)
+Array.from(document.getElementsByClassName('close-button')).forEach(button => {
+	button.addEventListener('click', (e) => {
+		button.parentNode.style.display = 'none';
+	});
 });
 
-document.getElementById('popup-close-button').addEventListener('click', (e) => {
-    popup.style.display = 'none';
+document.getElementById('login-button').addEventListener('click', (e) => {
+	registerBody.style.display = 'none';
+	loginBody.style.display = 'block';
+    accountPopup.style.display = 'block';
+});
+
+document.getElementById('register-button').addEventListener('click', (e) => {
+	loginBody.style.display = 'none';
+	registerBody.style.display = 'block';
+    accountPopup.style.display = 'block';
+});
+
+document.getElementById('login-submit').addEventListener('click', (e) => {
+	loginMessage.innerHTML = '&ZeroWidthSpace;';
+    lookupUid(loginForm.uid.value, login);
+});
+
+document.getElementById('register-submit').addEventListener('click', (e) => {
+    fetch(url.origin + '/generate')
+	.then(response => {
+		if (response.status == 200) return response.text();
+		registerMessage.innerHTML = 'Something went wrong, please try again later.';
+		return null;
+	})
+	.then(uid => {
+		registerMessage.innerHTML = 'Your uid is ' + uid + '. Do not lose this.';
+		loginForm.uid.value = uid;
+    });
 });

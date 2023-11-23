@@ -1,7 +1,10 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const {v5: uuidv5} = require('uuid');
 const port = process.env.PORT || 3000;
+
+const uuidNamespace = process.env.uuid || require('./secrets/uuid.json');
 
 const mimeTypes = {
     '.html': 'text/html',
@@ -59,6 +62,10 @@ function loadFile(filePath) {
     }
 }
 
+function generateUid(str) {
+    let uuid = uuidv5(str, uuidNamespace);
+}
+
 http.createServer(async function (request, response) {
     let url = new URL('http://' + request.headers.host + request.url);
     let subPath = url.pathname;
@@ -83,12 +90,12 @@ http.createServer(async function (request, response) {
         response.end(JSON.stringify(Products), 'utf-8');
     }
     else if (subPath == '/lookup') {
-        let uuid = url.searchParams.get('uuid');
-        // SELECT * FROM UserDatabase WHERE uuid = 'uuid'
-        if (uuid == 'user') {
+        let uid = url.searchParams.get('uid');
+        // SELECT * FROM UserDatabase WHERE uid = 'uid'
+        if (uid == 'user') {
             response.writeHead(200, {'Content-Type': 'application/json'});
             response.end(JSON.stringify({
-                uuid: uuid,
+                uid: uid,
                 username: 'username',
                 balance: 400
             }), 'utf-8');
@@ -99,15 +106,15 @@ http.createServer(async function (request, response) {
         }
     }
     else if (subPath == '/transact') {
-        let uuid = url.searchParams.get('uuid');
+        let uid = url.searchParams.get('uid');
         let productId = url.searchParams.get('pid');
         // TODO check if ids exist and respond 412 if not
         //let result = SELECT price, url FROM ProductDatabase WHERE product_id = 'productId'
         //let price, url = result[0]
-        //let result = SELECT balance FROM UserDatabase WHERE uuid = 'uuid'
+        //let result = SELECT balance FROM UserDatabase WHERE uid = 'uid'
         //let balance = result[0]
         //if balance >= price {
-        //    UPDATE UserDatabase SET balance = balance - price WHERE uuid = 'uuid'
+        //    UPDATE UserDatabase SET balance = balance - price WHERE uid = 'uid'
         //    response.writeHead(200, {'Content-Type': 'text/plain'});
         //    response.end(url, 'utf-8');
         //}
@@ -115,6 +122,13 @@ http.createServer(async function (request, response) {
         //    response.writeHead(422)
         //    response.end();
         //}
+    }
+    else if (subPath == '/generate') {
+        let str = url.searchParams.get('id') || Date.now().toString();
+        let uid = uuidv5(str, uuidNamespace).slice(20);
+        // INSERT INTO UserDatabase VALUES (uid, 0)
+        response.writeHead(200, {'Content-Type': 'text/plain'});
+        response.end(uid, 'utf-8');
     }
     else {
         response.writeHead(404);

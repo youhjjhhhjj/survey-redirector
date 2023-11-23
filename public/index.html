@@ -15,17 +15,40 @@
 <body>
   <div class="header" style="position: fixed; z-index: 6;">
     <h1 style="display: inline-block; margin: auto 5%;">Website Title</h1>
-    <h1 id="login-header" style="display: inline-block; margin-left: 15%;">Login to get started</h1>
-    <form id="login-form" style="display: inline-block; margin-left: 5px;">
-      <input type="text" name="uuid" id="uuid-field" class="login-form-field" placeholder="uuid">
-      <input type="submit" value="Login" id="login-form-submit">
-    </form>
-    <h1 style="display: inline-block; margin-left: 15%;">Credits: </h1>
-    <h1 style="display: inline-block; margin-right: 5%;" id="points-display">0</h1>
+    <h1 id="login-header">Login to get started</h1>
+    <div style="width: auto; margin-right: 5%">
+      <div id="header-buttons">
+        <button type="button" id="login-button" style="background-color: #4caf50;">Login</button>
+        <button type="button" id="register-button" style="background-color: sienna;">Register</button>
+      </div>
+      <div id="credits-display" style="display: none;">
+        <h1 style="display: inline-block;">Credits: </h1>
+        <h1 style="display: inline-block;" id="points">0</h1>
+      </div>
+    </div>
   </div>
 
   <div class="header">
     <h1 style="margin: auto 5%;">&ZeroWidthSpace;</h1>
+  </div>
+
+  <div id="account-popup">
+    <div id="login" class="popup-body">
+      <h1 style="position: relative; width: 100%; margin-top: 5%; text-align: center;">Login</h1>
+      <h3 style="margin: 5%;">Log in using your provided uid, or click 'Register' above to generate a new uid.</h3>
+      <form id="login-form" style="position: relative; top: 10%; width: 100%; justify-content: center;">
+        <input type="text" name="uid" id="uid-field" style="padding: 8px;" placeholder="uid">
+        <button type="button" id="login-submit" style="background-color: #4caf50;">Login</button>
+      </form>
+      <div id="login-message" style="text-align: center; margin-top: 10px;">&ZeroWidthSpace;</div>
+    </div>
+    <div id="register" class="popup-body">
+      <h1 style="position: relative; width: 100%; margin-top: 5%; text-align: center;">Register</h1>
+      <h3 style="margin: 5%;">Generate a uid. Make sure to save it or bookmark this page after logging in.</h3>
+      <button id="register-submit" type="button" style="position: relative; top: 10%; left:50%; transform: translateX(-50%); background-color: sienna;">Generate uid</button>
+      <div id="register-message" style="text-align: center; margin-top: 10px;">&ZeroWidthSpace;</div>
+    </div>
+    <div class="close-button">x</div>
   </div>
 
   <!-- <script>
@@ -38,16 +61,16 @@
 
   <div id="grid"></div>
 
-  <div id="popup">
-    <div id="popup-body">
-      <img id="popup-image" src=https://www.w3schools.com/w3images/nature.jpg>
+  <div id="product-popup">
+    <div class="popup-body">
+      <img id="product-image" src=https://www.w3schools.com/w3images/nature.jpg>
       <div style="width: 50%; height: 100%; float: left;">
-        <h2 id="popup-name" style="text-align: center;">Product Name</h2>
-        <h3 id="popup-description" style="margin: 5%">Description</h3>
-        <div class="price-tag" id="popup-price" style="cursor: pointer; scale: 2; bottom: 20px; right: 44px;">Get</div>
+        <h2 id="product-name" style="text-align: center;">Product Name</h2>
+        <h3 id="product-description" style="margin: 5%">Description</h3>
+        <div class="price-tag" id="product-price" style="cursor: pointer; scale: 2; bottom: 20px; right: 44px;">Get</div>
       </div>
     </div>
-    <div id="popup-close-button">x</div>
+    <div class="close-button">x</div>
   </div>
 
   <div id="footer">Join our <a href="discord.com" target="_blank">discord</a></div>

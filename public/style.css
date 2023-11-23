@@ -24,7 +24,10 @@ h1 {
 }
 
 #login-header {
-    margin-left: 15%;
+    position: absolute;
+    display: inline-block;
+    left: 50%;
+    transform: translateX(-50%);
 }
 
 form {
@@ -32,13 +35,7 @@ form {
     align-items: center;
 }
 
-.login-form-field {
-    padding: 8px;
-    margin-right: 10px;
-}
-
-#login-form-submit {
-    background-color: #4caf50;
+button {
     color: #fff;
     padding: 10px 15px;
     border: none;
@@ -46,8 +43,8 @@ form {
     border-radius: 5%;
 }
 
-#login-form-submit:hover {
-    background-color: #45a049;
+button:hover {
+    filter: brightness(85%);
 }
 
 #grid {
@@ -130,7 +127,7 @@ form {
     display: block;
 }
 
-#popup {
+#product-popup {
     position: fixed;
     margin-left: 15%;
     margin-right: 15%;
@@ -142,23 +139,30 @@ form {
     display: none;
 }
 
-#popup-body {
+.popup-body {
     background-color: #1f1f1f;
     height: 100%;
     width: 100%;
     border-radius: 15px;
     overflow: hidden;
     box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.5);
+    padding-bottom: 5%;
 }
 
-#popup img {
+#product-image {
     width: 50%;
     float: left;
 }
 
-#popup-close-button {
+#product-price:hover {
+    filter: brightness(85%);
+}
+
+.close-button {
     position: absolute;
-    top: -5px; right: -5px;
+    top: 0px;
+    right: 0px;
+    transform: translate(25%, -25%);
     height: 30px;
     width: 30px;
     line-height: 30px;
@@ -168,4 +172,19 @@ form {
     text-align: center;
     font-weight: bolder;
     cursor: pointer;
+}
+
+.close-button:hover {
+    filter: brightness(75%);
+}
+
+#account-popup {
+    min-height: 25%;
+    min-width: 20%;
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 4;
+    display: none;
 }
