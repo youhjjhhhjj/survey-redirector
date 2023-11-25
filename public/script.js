@@ -1,15 +1,15 @@
-const loginForm = document.getElementById('login-form');
-const registerForm = document.getElementById('register-form');
-const productPopup = document.getElementById('product-popup');
-const productImage = document.getElementById('product-image');
-const productName = document.getElementById('product-name');
-const productDescription = document.getElementById('product-description');
-const productPrice = document.getElementById('product-price');
-const accountPopup = document.getElementById('account-popup');
-const loginBody = document.getElementById('login');
-const registerBody = document.getElementById('register');
-const loginMessage = document.getElementById('login-message');
-const registerMessage = document.getElementById('register-message');
+const loginField = jQuery('#login-field');
+const registerField = jQuery('#register-field');
+const productPopup = jQuery('#product-popup');
+const productImage = jQuery('#product-image');
+const productName = jQuery('#product-name');
+const productDescription = jQuery('#product-description');
+const productPrice = jQuery('#product-price');
+const accountPopup = jQuery('#account-popup');
+const loginBody = jQuery('#login');
+const registerBody = jQuery('#register');
+const loginMessage = jQuery('#login-message');
+const registerMessage = jQuery('#register-message');
 const grid = jQuery('#grid');
 
 const url = new URL(window.location);
@@ -21,8 +21,8 @@ var pid = null;
 function setUser(user) {
     console.log(user);
     if (user != null) {
-        document.getElementById('header-buttons').remove();
-        document.getElementById('credits-display').style.display = 'inline-block';
+        jQuery('#header-buttons').remove();
+        jQuery('#credits-display').css({display: 'inline-block'});
         jQuery('#login-header').text('Logged in as ' + user.username);
         jQuery('#points').text(user.balance);
     }
@@ -34,14 +34,14 @@ function setUser(user) {
 
 function login(user) {
     if (user != null) {
-        loginMessage.innerHTML = 'You have successfully logged in.';
+        loginMessage.text('You have successfully logged in.');
         setTimeout(() => {
             url.searchParams.set('uid', user.uid);
             location.href = url;
         }, 1500);	
     }
     else {
-        loginMessage.innerHTML = 'Incorrect uid, please try again.';
+        loginMessage.text('Incorrect uid, please try again.');
     }
 }
 
@@ -62,11 +62,11 @@ fetch(url.origin + '/data.json').then(response => {return response.json();}).the
         let productDiv = jQuery(`<div class="preview"> <h2>${product.name}</h2> <img src=${product.image}> <div class="price-tag">${product.price}</div></div>`);
         productDiv.bind('click', () => {
             pid = product.id;
-            productImage.src = product.image;
-            productName.innerHTML = product.name;
-            productDescription.innerHTML = product.description;
-            productPrice.innerHTML = `Get (${product.price})`;
-            productPopup.style.display = 'block';
+            productImage.attr('attr', product.image);
+            productName.text(product.name);
+            productDescription.text(product.description);
+            productPrice.text(`Get (${product.price})`);
+            productPopup.css({display: 'block'});
         });
         grid.append(productDiv);
     });
@@ -76,52 +76,54 @@ if (uid !== null) {
     lookupUid(uid, setUser);
 }
 
-Array.from(document.getElementsByClassName('close-button')).forEach(button => {
-    button.addEventListener('click', () => {
+jQuery('.close-button').each((i, button) => {
+	button.addEventListener('click', () => {
         button.parentNode.style.display = 'none';
     });
 });
 
-document.getElementById('login-button').addEventListener('click', () => {
-    registerBody.style.display = 'none';
-    loginBody.style.display = 'block';
-    accountPopup.style.display = 'block';
+jQuery('#login-button').on('click', () => {
+    registerBody.css({display: 'none'});
+    loginBody.css({display: 'block'});
+    accountPopup.css({display: 'block'});
 });
 
-document.getElementById('register-button').addEventListener('click', () => {
-    loginBody.style.display = 'none';
-    registerBody.style.display = 'block';
-    accountPopup.style.display = 'block';
+jQuery('#register-button').on('click', () => {
+    loginBody.css({display: 'none'});
+    registerBody.css({display: 'block'});
+    accountPopup.css({display: 'block'});
 });
 
-document.getElementById('login-submit').addEventListener('click', () => {
-    loginMessage.innerHTML = '&ZeroWidthSpace;';
-    if (!/[0-9a-f]{4}-[0-9a-f]{12}/.test(loginForm.uid.value)) {
-        loginMessage.innerHTML = 'Invalid uid.';
+jQuery('#login-submit').on('click', () => {
+    loginMessage.html('&ZeroWidthSpace;');
+	let loginFieldValue = loginField.val();
+    if (!/[0-9a-f]{4}-[0-9a-f]{12}/.test(loginFieldValue)) {
+        loginMessage.text('Invalid uid.');
         return;
     }
-    lookupUid(loginForm.uid.value, login);
+    lookupUid(loginFieldValue, login);
 });
 
-document.getElementById('register-submit').addEventListener('click', () => {
-    if (registerForm.username.value.length < 2 || registerForm.username.value.length > 32) {
-        registerMessage.innerHTML = 'Username must be between 2 and 32 characters.';
+jQuery('#register-submit').on('click', () => {
+	let registerFieldValue = registerField.val();
+    if (registerFieldValue < 2 || registerFieldValue > 32) {
+        registerMessage.text('Username must be between 2 and 32 characters.');
         return;
     }
-    fetch(`${url.origin}/generate?username=${registerForm.username.value}`)
+    fetch(`${url.origin}/generate?username=${registerFieldValue}`)
         .then(response => {
             if (response.status == 200) return response.text();
-            registerMessage.innerHTML = 'Something went wrong, please try again later.';
+            registerMessage.text('Something went wrong, please try again later.');
             return null;
         })
         .then(newUid => {
             if (newUid === null) return;
-            registerMessage.innerHTML = 'Your uid is ' + newUid + '. Do not lose this.';
-            loginForm.uid.value = newUid;
+            registerMessage.text('Your uid is ' + newUid + '. Do not lose this.');
+            loginField.val(newUid);
         });
 });
 
-productPrice.addEventListener('click', () => {
+productPrice.on('click', () => {
     if (!uid) {
         alert('You must be logged in for this.');
         return;
