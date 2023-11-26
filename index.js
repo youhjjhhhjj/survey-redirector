@@ -26,7 +26,7 @@ const MIME_TYPES = {
     '.ico' : 'image/x-icon',
 };
 
-const staticPaths = new Set(['/', '/style.css', '/script.js']);
+const staticPaths = new Set(['/', '/style.css', '/script.js', '/privacy-policy.html']);
 
 // CREATE TABLE Users ( id CHAR(17) PRIMARY KEY, username VARCHAR(63) NOT NULL, balance INTEGER NOT NULL DEFAULT 0 );
 // CREATE TABLE Transactions ( id SERIAL PRIMARY KEY, transaction_time TIMESTAMP NOT NULL, amount INTEGER NOT NULL, user_id CHAR(17) NOT NULL REFERENCES Users, product_id SMALLINT );

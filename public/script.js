@@ -104,12 +104,13 @@ jQuery('#login-submit').on('click', () => {
     lookupUid(loginFieldValue, login);
 });
 
-jQuery('#register-submit').on('click', () => {
+jQuery('#register-submit').on('click', (e) => {
 	let registerFieldValue = registerField.val();
     if (registerFieldValue < 2 || registerFieldValue > 32) {
         registerMessage.text('Username must be between 2 and 32 characters.');
         return;
     }
+	jQuery(e.target).off();
     fetch(`${url.origin}/generate?username=${registerFieldValue}`)
         .then(response => {
             if (response.status == 200) return response.text();
