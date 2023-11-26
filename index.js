@@ -39,6 +39,7 @@ const pgClient = new pg.Pool({
 pgClient.connect().then(() => console.log('Database connection established'));
 
 const registerTimeouts = new Set();
+const transactionIds = new Set();
 
 class Product {
     constructor(id, name, description, price, image) {
@@ -191,6 +192,23 @@ http.createServer(async function (request, response) {
         response.writeHead(200, {'Content-Type': 'text/plain'});
         response.end(uid, 'utf-8');
         return;
+    }
+    else if (subPath == '/survey') {
+        let uid = url.searchParams.get('request_uuid');
+        let transactionId = url.searchParams.get('tx_id');
+        let signature = url.searchParams.get('signature');
+        let points = url.searchParams.get('cpa');
+        console.log('Received callback: ', uid, transactionId, signature, points);
+        if (transactionIds.has(transactionId)) {
+            response.writeHead(409);
+            response.end('This transaction was already received.');
+            return;
+        }
+        // TODO check signature
+        pgClient.query('INSERT INTO Transactions ( transaction_time, amount, user_id ) VALUES ( $1, $2, $3 );', [new Date().toISOString(), points, uid]);
+        pgClient.query('UPDATE Users SET balance = balance + $1 WHERE id = $2;', [cpa, uid]);
+        response.writeHead(204);
+        response.end();
     }
     else {
         response.writeHead(404);

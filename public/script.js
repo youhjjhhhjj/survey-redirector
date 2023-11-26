@@ -10,6 +10,7 @@ const loginBody = jQuery('#login');
 const registerBody = jQuery('#register');
 const loginMessage = jQuery('#login-message');
 const registerMessage = jQuery('#register-message');
+const pointsCounter = jQuery('#points');
 const grid = jQuery('#grid');
 
 const url = new URL(window.location);
@@ -17,6 +18,16 @@ var uid = url.searchParams.get('uid');
 console.log(uid);
 var pid = null;
 
+var pollfishConfig = {
+  api_key: "194e119c-3d7d-496f-8c27-9dba816c5c62",
+  user_id: uid,
+  request_uuid: uid,
+  closeAndNoShowCallback: () => Pollfish.showIndicator(),
+  surveyCompletedCallback: surveyCompletedCallback,
+  userNotEligibleCallback: () => Pollfish.restart(pollfishConfig),
+  debug: true
+  // ...,
+};
 
 function setUser(user) {
     console.log(user);
@@ -24,7 +35,10 @@ function setUser(user) {
         jQuery('#header-buttons').remove();
         jQuery('#credits-display').css({display: 'inline-block'});
         jQuery('#login-header').text('Logged in as ' + user.username);
-        jQuery('#points').text(user.balance);
+        pointsCounter.text(user.balance);
+		jQuery.getScript('https://storage.googleapis.com/pollfish_production/sdk/webplugin/pollfish.min.js', () => {
+			console.log('Loaded Pollfish');
+		});
     }
     else {
         url.searchParams.delete('uid');
@@ -54,6 +68,15 @@ function lookupUid(uid, func) {
         .then(user => {
             func(user);
         });
+}
+
+function surveyCompletedCallback() {
+	console.log('Survey completed');
+	alert('Survey completed, points should update in a few seconds.');
+	Pollfish.restart(pollfishConfig);
+	setTimeout(() => {
+		lookupUid(uid, (user) => pointsCounter.text(user.balance));
+	}, 3000);	
 }
 
 
@@ -142,6 +165,7 @@ productPrice.on('click', () => {
         })
         .then(productUrl => {
             if (productUrl === null) return;
+			lookupUid(uid, (user) => pointsCounter.text(user.balance));
             console.log(productUrl);
             window.open(productUrl, '_blank');
         });
