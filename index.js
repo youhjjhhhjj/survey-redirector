@@ -38,6 +38,8 @@ const pgClient = new pg.Pool({
 });
 pgClient.connect().then(() => console.log('Database connection established'));
 
+const registerTimeouts = new Set();
+
 class Product {
     constructor(id, name, description, price, image) {
         this.id = id;
@@ -167,11 +169,20 @@ http.createServer(async function (request, response) {
         });
     }
     else if (subPath == '/generate') {
-        let str = Date.now().toString();
+        let ip = request.headers['x-forwarded-for'] || request.socket.remoteAddress;
+        if (registerTimeouts.has(ip)) {
+            response.writeHead(429);
+            response.end('Try again later.');
+            return;
+        }
         let username = url.searchParams.get('username');
-        if (url.searchParams.get('uuid') === UUID) str = username;
+        let str = username;
+        if (url.searchParams.get('uuid') !== UUID) str = `${username} ${ip}`;
+        console.log('Registration request as ' + str);
+        registerTimeouts.add(ip);
+        setTimeout(() => registerTimeouts.delete(ip), 1000 * 60 * 10);
         let uid = uuidv5(str, UUID).slice(19);
-        pgClient.query('INSERT INTO Users ( id, username ) VALUES ( $1, $2 );', [uid, username]).catch(err => {
+        pgClient.query('INSERT INTO Users ( id, username ) VALUES ( $1, $2 ) ON CONFLICT DO NOTHING;', [uid, username]).catch(err => {
             console.error(err.stack);
             response.writeHead(500);
             response.end('An unexpected error was encountered.');
