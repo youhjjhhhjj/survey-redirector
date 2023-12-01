@@ -13,11 +13,13 @@
 </head>
 
 <body>
-  <div class="header" style="position: fixed; z-index: 6;">
-    <h1 style="display: inline-block; margin: auto 5%;">Website Title</h1>
+  <div class="header" style="position: fixed; z-index: 6; justify-content: left;">
+    <h1 style="display: inline-block; margin-left: 5%;">Website Title</h1>
+    <h3 id="what-button" class="info-button" style="margin-left: 10%;">What is<br>this site?</h3>
+    <h3 id="how-button" class="info-button">How does<br>it work?</h3>
     <h1 id="login-header">Login to get started</h1>
-    <div style="width: auto; margin-right: 5%">
-      <div id="header-buttons">
+    <div style="width: auto; position: absolute; right: 5%">
+      <div id="header-buttons" style="z-index: 2;">
         <button type="button" id="login-button" style="background-color: #4caf50;">Login</button>
         <button type="button" id="register-button" style="background-color: sienna;">Register</button>
       </div>
@@ -32,7 +34,17 @@
     <h1 style="margin: auto 5%;">&ZeroWidthSpace;</h1>
   </div>
 
-  <div id="account-popup">
+  <div id="info-popup" class="popup">
+    <div id="what" class="popup-body">
+      <h3>This website contains a collection of scripts for Autodesk Maya that I have written or adapted. You can access them by completing surveys which should only take a few minutes each; it's much friendlier than a regular paywall while paying out a lot more than banner ads.</h3>
+    </div>
+    <div id="how" class="popup-body">
+      <h3>Register an account with the 'Register' button above and then log in with the provided user id. Afterwards, click on the Pollfish widget in the bottom right to be served a survey; successfully completing the survey will reward you with between 30 and 100 points that you can use to unlock content.</h3>
+    </div>
+    <div class="close-button">x</div>
+  </div>
+
+  <div id="account-popup" class="popup">
     <div id="login" class="popup-body">
       <h1 style="position: relative; width: 100%; margin-top: 5%; text-align: center;">Login</h1>
       <h3 style="margin: 5%;">Log in using your provided uid, or click 'Register' above to generate a new uid.</h3>
@@ -56,7 +68,7 @@
 
   <div id="grid"></div>
 
-  <div id="product-popup">
+  <div id="product-popup" class="popup">
     <div class="popup-body" style="padding-bottom: 0px;">
       <img id="product-image" src=https://www.w3schools.com/w3images/nature.jpg>
       <div style="width: 50%; height: 100%; float: left;">

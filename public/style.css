@@ -127,16 +127,19 @@ button:hover {
     display: block;
 }
 
-#product-popup {
+.popup {
     position: fixed;
+    display: none;
+    top: 50%;
+    z-index: 4;
+}
+
+#product-popup {
     margin-left: 15%;
     margin-right: 15%;
     left: 0;
     right: 0;
-    top: 50%;
     transform: translateY(-50%);
-    z-index: 4;
-    display: none;
 }
 
 .popup-body {
@@ -180,11 +183,32 @@ button:hover {
 
 #account-popup {
     min-height: 25%;
-    min-width: 20%;
-    position: fixed;
+    width: 30%;
+    min-width: 400px;
     left: 50%;
-    top: 50%;
     transform: translate(-50%, -50%);
-    z-index: 6;
-    display: none;
+}
+
+.info-button {
+    display: inline-block;
+    text-align: center;
+    padding: 5px;
+    margin: auto 2% auto 2%;
+    cursor: pointer;
+}
+
+.info-button:hover {
+    filter: brightness(75%);
+}
+
+#info-popup {
+    height: 25%;
+    width: 30%;
+    min-width: 400px;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+#info-popup h3 {
+    margin: 15% 5% 5% 5%;
 }

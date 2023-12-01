@@ -11,6 +11,9 @@ const registerBody = jQuery('#register');
 const loginMessage = jQuery('#login-message');
 const registerMessage = jQuery('#register-message');
 const pointsCounter = jQuery('#points');
+const infoPopup = jQuery('#info-popup');
+const whatBody = jQuery('#what');
+const howBody = jQuery('#how');
 const grid = jQuery('#grid');
 
 const url = new URL(window.location);
@@ -79,6 +82,12 @@ function surveyCompletedCallback() {
 	}, 3000);	
 }
 
+function hidePopups() {
+	productPopup.css({display: 'none'});
+	accountPopup.css({display: 'none'});
+	infoPopup.css({display: 'none'});
+}
+
 
 fetch(url.origin + '/data.json').then(response => {return response.json();}).then(products => {
     products.forEach(product => {
@@ -89,6 +98,7 @@ fetch(url.origin + '/data.json').then(response => {return response.json();}).the
             productName.text(product.name);
             productDescription.text(product.description);
             productPrice.text(`Get (${product.price})`);
+			hidePopups();
             productPopup.css({display: 'block'});
         });
         grid.append(productDiv);
@@ -106,12 +116,14 @@ jQuery('.close-button').each((i, button) => {
 });
 
 jQuery('#login-button').on('click', () => {
+	hidePopups();
     registerBody.css({display: 'none'});
     loginBody.css({display: 'block'});
     accountPopup.css({display: 'block'});
 });
 
 jQuery('#register-button').on('click', () => {
+	hidePopups();
     loginBody.css({display: 'none'});
     registerBody.css({display: 'block'});
     accountPopup.css({display: 'block'});
@@ -145,6 +157,20 @@ jQuery('#register-submit').on('click', (e) => {
             registerMessage.text('Your uid is ' + newUid + '. Do not lose this.');
             loginField.val(newUid);
         });
+});
+
+jQuery('#what-button').on('click', () => {
+	hidePopups();
+    howBody.css({display: 'none'});
+    whatBody.css({display: 'block'});
+    infoPopup.css({display: 'block'});
+});
+
+jQuery('#how-button').on('click', () => {
+	hidePopups();
+    whatBody.css({display: 'none'});
+    howBody.css({display: 'block'});
+    infoPopup.css({display: 'block'});
 });
 
 productPrice.on('click', () => {
