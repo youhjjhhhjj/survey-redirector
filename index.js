@@ -46,7 +46,7 @@ const productUrls = [];
 fs.promises.readFile('./secrets/products.json', 'utf-8').then(productData => {
     JSON.parse(productData).forEach((product, i) => {
         productUrls.push(product.url);
-        product.id = i;
+        product.id = i + 1;
         delete product.url;
         products.push(product);
     });

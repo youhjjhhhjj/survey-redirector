@@ -94,7 +94,7 @@ fetch(url.origin + '/data.json').then(response => {return response.json();}).the
         let productDiv = jQuery(`<div class="preview"> <h2>${product.name}</h2> <img src=${product.image}> <div class="price-tag">${product.price}</div></div>`);
         productDiv.bind('click', () => {
             pid = product.id;
-            productImage.attr('attr', product.image);
+            productImage.attr('src', product.image);
             productName.text(product.name);
             productDescription.text(product.description);
             productPrice.text(`Get (${product.price})`);

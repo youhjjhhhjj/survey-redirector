@@ -1,33 +1,42 @@
+html {
+    height: 100%;
+}
+
 body {
     font-family: 'Raleway', sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #1f1f1f;
+    background-color: #222e38;
     color: #fff;
     overflow-x: hidden;
+    height: 100%;
+    background-image: url('https://i.postimg.cc/8kxbHrHZ/bg.png');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    position: fixed;
 }
 
 .header {
     height: auto;
     width: 100%;
     background-color: #111;
-    padding: 20px;
+    padding: 5px 0 5px 0;
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.5);
+}
+
+#footer {
+    background-color: #949494;
+    padding-left: 10px;
+    position: fixed;
+    bottom: 0px;
+    width: calc(10% - 10px);
 }
 
 h1 {
     font-size: 24px;
     margin: 0;
-}
-
-#login-header {
-    position: absolute;
-    display: inline-block;
-    left: 50%;
-    transform: translateX(-50%);
 }
 
 form {
@@ -47,13 +56,21 @@ button:hover {
     filter: brightness(85%);
 }
 
+#grid-holder {
+    height: 100%;
+    padding: 20px 10px 0 10px;
+    margin: 0 10% 0 10%;
+    background-color: #262626;
+    box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.5);
+}
+
 #grid {
     display: flex;
     flex-wrap: wrap;
     gap: 20px;
-    padding: 20px;
     box-sizing: border-box;
     overflow-y: hidden;
+    justify-content: center;
 }
 
 .preview {
@@ -83,6 +100,7 @@ button:hover {
     background-color: rgba(35, 35, 35, 0.8);
     padding: 10px;
     box-sizing: border-box;
+    font-size: 1.25em;
     z-index: 2;
 }
 
@@ -190,7 +208,7 @@ button:hover {
 }
 
 .info-button {
-    display: inline-block;
+    float: left;
     text-align: center;
     padding: 5px;
     margin: auto 2% auto 2%;

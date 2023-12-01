@@ -2,26 +2,27 @@
 <html lang="en">
 
 <head>
-  <title>Website Title</title>
+  <title>Maya Script Store</title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
   <link rel="stylesheet" href="style.css">
+  <link rel="icon" type="image/x-icon" href="https://static-00.iconduck.com/assets.00/apps-autodesk-maya-icon-512x512-2hrvdn04.png">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
-  <!-- <script src="https://storage.googleapis.com/pollfish_production/sdk/webplugin/pollfish.min.js"></script> -->
   <script defer src="script.js"></script>
 </head>
 
 <body>
-  <div class="header" style="position: fixed; z-index: 6; justify-content: left;">
-    <h1 style="display: inline-block; margin-left: 5%;">Website Title</h1>
-    <h3 id="what-button" class="info-button" style="margin-left: 10%;">What is<br>this site?</h3>
+  <div class="header" style="position: fixed; z-index: 6; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.5);">
+    <img src="https://static-00.iconduck.com/assets.00/apps-autodesk-maya-icon-512x512-2hrvdn04.png" alt="icon" width="32" height="32" style="margin-left: 12%;">
+    <h1 style="margin-left: 15px;">Maya Script Store</h1>
+    <h3 id="what-button" class="info-button" style="margin-left: 8%;">What is<br>this site?</h3>
     <h3 id="how-button" class="info-button">How does<br>it work?</h3>
-    <h1 id="login-header">Login to get started</h1>
-    <div style="width: auto; position: absolute; right: 5%">
+    <h4 id="login-header" style="margin-left: 20%">Login to get started</h4>
+    <div style="width: auto; margin-left: 5%;">
       <div id="header-buttons" style="z-index: 2;">
         <button type="button" id="login-button" style="background-color: #4caf50;">Login</button>
-        <button type="button" id="register-button" style="background-color: sienna;">Register</button>
+        <button type="button" id="register-button" style="background-color: #2b5875;">Register</button>
       </div>
       <div id="credits-display" style="display: none;">
         <h1 style="display: inline-block;">Credits: </h1>
@@ -30,8 +31,9 @@
     </div>
   </div>
 
-  <div class="header">
-    <h1 style="margin: auto 5%;">&ZeroWidthSpace;</h1>
+  <div class="header" style="background-color: transparent;">
+    <h1 style="margin-left: 12%;">Maya Script Store</h1>
+    <h3 class="info-button" style="margin-left: 8%;">&ZeroWidthSpace;<br>&ZeroWidthSpace;</h3>
   </div>
 
   <div id="info-popup" class="popup">
@@ -59,14 +61,16 @@
       <h3 style="margin: 5%;">Generate a uid. Make sure to save it or bookmark this page after logging in.</h3>
       <form id="register-form" style="position: relative; top: 10%; width: 100%; justify-content: center;">
         <input id="register-field" type="text" name="username" style="padding: 8px;" placeholder="username">
-        <button type="button" id="register-submit" style="background-color: sienna;">Register</button>
+        <button type="button" id="register-submit" style="background-color: #2b5875;">Register</button>
       </form>
       <div id="register-message" style="text-align: center; margin-top: 10px;">&ZeroWidthSpace;</div>
     </div>
     <div class="close-button">x</div>
   </div>
 
-  <div id="grid"></div>
+  <div id="grid-holder">
+    <div id="grid"></div>
+  </div>
 
   <div id="product-popup" class="popup">
     <div class="popup-body" style="padding-bottom: 0px;">
@@ -80,7 +84,7 @@
     <div class="close-button">x</div>
   </div>
 
-  <div id="footer" style="background-color: #ccc; padding-left: 10px;"><a href="privacy-policy.html" target="_blank">Privacy Policy</a></div>
+  <div id="footer"><a href="privacy-policy.html" target="_blank">Privacy Policy</a></div>
 
 </body>
 
