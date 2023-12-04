@@ -26,7 +26,7 @@ const MIME_TYPES = {
     '.ico' : 'image/x-icon',
 };
 
-const staticPaths = new Set(['/', '/style.css', '/script.js', '/privacy-policy.html']);
+const staticPaths = new Set(['/', '/style.css', '/script.js']);
 
 // CREATE TABLE Users ( id CHAR(17) PRIMARY KEY, username VARCHAR(63) NOT NULL, balance INTEGER NOT NULL DEFAULT 0 );
 // CREATE TABLE Transactions ( id SERIAL PRIMARY KEY, transaction_time TIMESTAMP NOT NULL, amount INTEGER NOT NULL, user_id CHAR(17) NOT NULL REFERENCES Users, product_id SMALLINT );
@@ -67,7 +67,7 @@ function loadFile(filePath) {
 http.createServer(async function (request, response) {
     let url = new URL('http://' + request.headers.host + request.url);
     let subPath = url.pathname;
-    console.log(`(${new Date().toISOString()}) request: ${subPath}`);
+    console.log(`(${new Date().toISOString()}) request: ${request.url}`);
 
     if (staticPaths.has(subPath)) {
         if (subPath == '/') subPath = '/index.html';
@@ -116,7 +116,7 @@ http.createServer(async function (request, response) {
     else if (subPath == '/transact') {
         let uid = url.searchParams.get('uid');
         let pid = url.searchParams.get('pid');
-        if (uid === undefined || uid === 'null' || !pid || isNaN(pid) || parseInt(pid) >= products.length) {
+        if (uid === undefined || uid === 'null' || !pid || isNaN(pid) || parseInt(pid) > products.length) {
             response.writeHead(412);
             response.end('The user id or product id is not valid.');
             return;
@@ -165,16 +165,17 @@ http.createServer(async function (request, response) {
         return;
     }
     else if (subPath == '/survey') {
-        let uid = url.searchParams.get('request_uuid');
-        let transactionId = url.searchParams.get('tx_id');
-        let signature = url.searchParams.get('signature');
-        let points = url.searchParams.get('cpa');
-        console.log('Received callback: ', uid, transactionId, signature, points);
+        let uid = url.searchParams.get('uid');
+        let transactionId = url.searchParams.get('txid');
+        let points = url.searchParams.get('val');
+        let signature = url.searchParams.get('hash');
+        console.log('Received callback: ', uid, transactionId, points, signature);
         if (transactionIds.has(transactionId)) {
             response.writeHead(409);
             response.end('This transaction was already received.');
             return;
         }
+        transactionIds.add(transactionId);
         // TODO check signature
         pgClient.query('INSERT INTO Transactions ( transaction_time, amount, user_id ) VALUES ( $1, $2, $3 );', [new Date().toISOString(), points, uid]);
         pgClient.query('UPDATE Users SET balance = balance + $1 WHERE id = $2;', [points, uid]);
