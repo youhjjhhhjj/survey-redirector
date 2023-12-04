@@ -165,16 +165,17 @@ http.createServer(async function (request, response) {
         return;
     }
     else if (subPath == '/survey') {
-        let uid = url.searchParams.get('request_uuid');
-        let transactionId = url.searchParams.get('tx_id');
-        let signature = url.searchParams.get('signature');
-        let points = url.searchParams.get('cpa');
-        console.log('Received callback: ', uid, transactionId, signature, points);
+        let uid = url.searchParams.get('uid');
+        let transactionId = url.searchParams.get('txid');
+        let points = url.searchParams.get('val');
+        let signature = url.searchParams.get('hash');
+        console.log('Received callback: ', uid, transactionId, points, signature);
         if (transactionIds.has(transactionId)) {
             response.writeHead(409);
             response.end('This transaction was already received.');
             return;
         }
+        transactionIds.add(transactionId);
         // TODO check signature
         pgClient.query('INSERT INTO Transactions ( transaction_time, amount, user_id ) VALUES ( $1, $2, $3 );', [new Date().toISOString(), points, uid]);
         pgClient.query('UPDATE Users SET balance = balance + $1 WHERE id = $2;', [points, uid]);

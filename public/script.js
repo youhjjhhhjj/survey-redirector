@@ -21,17 +21,6 @@ var uid = url.searchParams.get('uid');
 console.log(uid);
 var pid = null;
 
-var pollfishConfig = {
-  api_key: "194e119c-3d7d-496f-8c27-9dba816c5c62",
-  user_id: uid,
-  request_uuid: uid,
-  closeAndNoShowCallback: () => Pollfish.showIndicator(),
-  surveyCompletedCallback: surveyCompletedCallback,
-  userNotEligibleCallback: () => Pollfish.restart(pollfishConfig),
-  debug: true
-  // ...,
-};
-
 function setUser(user) {
     console.log(user);
     if (user != null) {
@@ -39,9 +28,6 @@ function setUser(user) {
         jQuery('#credits-display').css({display: 'inline-block'});
         jQuery('#login-header').text('Logged in as ' + user.username);
         pointsCounter.text(user.balance);
-		jQuery.getScript('https://storage.googleapis.com/pollfish_production/sdk/webplugin/pollfish.min.js', () => {
-			console.log('Loaded Pollfish');
-		});
     }
     else {
         url.searchParams.delete('uid');
@@ -71,15 +57,6 @@ function lookupUid(uid, func) {
         .then(user => {
             func(user);
         });
-}
-
-function surveyCompletedCallback() {
-	console.log('Survey completed');
-	alert('Survey completed, points should update in a few seconds.');
-	Pollfish.restart(pollfishConfig);
-	setTimeout(() => {
-		lookupUid(uid, (user) => pointsCounter.text(user.balance));
-	}, 3000);	
 }
 
 function hidePopups() {
@@ -171,6 +148,14 @@ jQuery('#how-button').on('click', () => {
     whatBody.css({display: 'none'});
     howBody.css({display: 'block'});
     infoPopup.css({display: 'block'});
+});
+
+jQuery('#earn-button').on('click', () => {
+	window.open(`https://web.bitlabs.ai/?uid=${uid}&token=e0c191d9-2b87-4fa4-ac89-cd5791a22dcd`, '_blank');
+});
+
+jQuery('#refresh-button').on('click', () => {
+	lookupUid(uid, (user) => pointsCounter.text(user.balance));
 });
 
 productPrice.on('click', () => {

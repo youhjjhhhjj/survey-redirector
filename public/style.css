@@ -230,3 +230,17 @@ button:hover {
 #info-popup h3 {
     margin: 15% 5% 5% 5%;
 }
+
+.points-button {
+    display: inline-block;
+    background-color: #949494;
+    padding: 5px;
+    margin: 2px;
+    vertical-align: middle;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.points-button:hover {
+    filter: brightness(75%);
+}
