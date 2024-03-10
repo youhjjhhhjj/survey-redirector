@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-  <title>Website Title</title>
+  <title>Gallery</title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
@@ -14,12 +14,12 @@
 
 <body>
   <div class="header" style="position: fixed; z-index: 6; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.5);">
-    <img src="https://cdn.discordapp.com/emojis/801499706625622046.webp?quality=lossless" alt="icon" width="32" height="32" style="margin-left: 12%;">
-    <h1 style="margin-left: 15px;">Website Title</h1>
-    <h3 id="what-button" class="info-button" style="margin-left: 8%;">What is<br>this site?</h3>
-    <h3 id="how-button" class="info-button">How does<br>it work?</h3>
-    <h4 id="login-header" style="position: absolute; left: 60%;">Login to get started</h4>
-    <div style="width: auto; position: absolute; right: 12%;">
+    <img src="https://cdn.discordapp.com/emojis/801499706625622046.webp?quality=lossless" alt="icon" width="32" height="32" style="margin-left: 20%;">
+    <h1 style="margin-left: 15px;">Abdomera's Mod Gallery</h1>
+    <h3 id="what-button" class="info-button" style="margin-left: 8%; display: none;">What is<br>this site?</h3>
+    <h3 id="how-button" class="info-button" style="display: none;">How does<br>it work?</h3>
+    <h4 id="login-header" style="position: absolute; left: 60%; display: none;">Login to get started</h4>
+    <div style="width: auto; position: absolute; right: 12%; display: none;">
       <div id="header-buttons" style="z-index: 2;">
         <button type="button" id="login-button" style="background-color: #4caf50;">Login</button>
         <button type="button" id="register-button" style="background-color: #2b5875;">Register</button>
@@ -33,17 +33,12 @@
     </div>
   </div>
 
-  <div class="header" style="background-color: transparent;">
-    <h1 style="margin-left: 12%;">Lorem ipsum dolor sit amet</h1>
-    <h3 class="info-button" style="margin-left: 8%;">&ZeroWidthSpace;<br>&ZeroWidthSpace;</h3>
-  </div>
-
   <div id="info-popup" class="popup">
     <div id="what" class="popup-body">
-      <h3>What</h3>
+      <h3>We made this site as a way for you to get access to mods without paying. Complete surveys to get points and exchange points for downloads.</h3>
     </div>
     <div id="how" class="popup-body">
-      <h3>How</h3>
+      <h3>Click on the '+' to be served a survey. After succesfully completing it, refresh your points count to see how many you have earned.<br>Note: to get more surveys and higher payouts, consider using a VPN to the USA.</h3>
     </div>
     <div class="close-button">x</div>
   </div>
@@ -70,9 +65,7 @@
     <div class="close-button">x</div>
   </div>
 
-  <div id="grid-holder">
-    <div id="grid"></div>
-  </div>
+  <div id="grid"></div>
 
   <div id="product-popup" class="popup">
     <div class="popup-body" style="padding-bottom: 0px;">
@@ -80,13 +73,13 @@
       <div style="width: 50%; height: 100%; float: left;">
         <h2 id="product-name" style="text-align: center;">Product Name</h2>
         <h3 id="product-description" style="margin: 5%">Description</h3>
-        <div class="price-tag" id="product-price" style="cursor: pointer; scale: 2; bottom: 20px; right: 44px;">Get</div>
+        <div class="price-tag" id="product-price" style="scale: 2; bottom: 20px; right: 44px;">$</div>
       </div>
     </div>
     <div class="close-button">x</div>
   </div>
 
-  <div id="footer"><a href="privacy-policy.html" target="_blank">Privacy Policy</a></div>
+  <div id="footer"><a href="https://discord.gg/leagueskinsnsfw" target="_blank">Discord</a></div>
 
 </body>
 

@@ -67,14 +67,14 @@ function hidePopups() {
 
 
 fetch(url.origin + '/data.json').then(response => {return response.json();}).then(products => {
-    products.forEach(product => {
-        let productDiv = jQuery(`<div class="preview"> <h2>${product.name}</h2> <img src=${product.image}> <div class="price-tag">${product.price}</div></div>`);
+    products.findLast(product => {
+        let productDiv = jQuery(`<div class="preview"> <h2>${product.name}</h2> <img src=${product.image}> <div class="price-tag">$${product.price}</div></div>`);
         productDiv.bind('click', () => {
             pid = product.id;
             productImage.attr('src', product.image);
             productName.text(product.name);
-            productDescription.text(product.description);
-            productPrice.text(`Get (${product.price})`);
+            productDescription.html(product.description);
+            productPrice.text('$' + product.price);
 			hidePopups();
             productPopup.css({display: 'block'});
         });
@@ -158,26 +158,26 @@ jQuery('#refresh-button').on('click', () => {
 	lookupUid(uid, (user) => pointsCounter.text(user.balance));
 });
 
-productPrice.on('click', () => {
-    if (!uid) {
-        alert('You must be logged in for this.');
-        return;
-    }
-    fetch(`${url.origin}/transact?uid=${uid}&pid=${pid}`)
-        .then(response => {
-            if (response.status == 200) return response.text();
-            else if (response.status == 422) {
-                alert('You do not have enough points for this.');
-                return null;
-            }
-            console.log(response.status, response.body);
-            alert('Something went wrong, contact staff for assistance.');
-            return null;
-        })
-        .then(productUrl => {
-            if (productUrl === null) return;
-			lookupUid(uid, (user) => pointsCounter.text(user.balance));
-            console.log(productUrl);
-            window.open(productUrl, '_blank');
-        });
-});
+// productPrice.on('click', () => {
+//     if (!uid) {
+//         alert('You must be logged in for this.');
+//         return;
+//     }
+//     fetch(`${url.origin}/transact?uid=${uid}&pid=${pid}`)
+//         .then(response => {
+//             if (response.status == 200) return response.text();
+//             else if (response.status == 422) {
+//                 alert('You do not have enough points for this.');
+//                 return null;
+//             }
+//             console.log(response.status, response.body);
+//             alert('Something went wrong, contact staff for assistance.');
+//             return null;
+//         })
+//         .then(productUrl => {
+//             if (productUrl === null) return;
+// 			lookupUid(uid, (user) => pointsCounter.text(user.balance));
+//             console.log(productUrl);
+//             window.open(productUrl, '_blank');
+//         });
+// });

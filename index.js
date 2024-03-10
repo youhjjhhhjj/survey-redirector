@@ -4,7 +4,7 @@ const path = require('path');
 const {v5: uuidv5} = require('uuid');
 const pg = require('pg');
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 6969;
 const UUID = process.env.UUID || require('./secrets/uuid.json');
 const DATABASE_URL = process.env.DATABASE_URL || require('./secrets/database-url.json');
 const MIME_TYPES = {
@@ -36,7 +36,7 @@ const pgClient = new pg.Pool({
         rejectUnauthorized: false
     }
 });
-pgClient.connect().then(() => console.log('Database connection established'));
+pgClient.connect().then(() => console.log('Database connection established')).catch(() => console.log('Database connection failed'));
 
 const registerTimeouts = new Set();
 const transactionIds = new Set();
@@ -67,7 +67,7 @@ function loadFile(filePath) {
 http.createServer(async function (request, response) {
     let url = new URL('http://' + request.headers.host + request.url);
     let subPath = url.pathname;
-    console.log(`(${new Date().toISOString()}) request: ${subPath}`);
+    console.log(`(${new Date().toISOString()}) request: ${request.url}`);
 
     if (staticPaths.has(subPath)) {
         if (subPath == '/') subPath = '/index.html';
@@ -116,7 +116,7 @@ http.createServer(async function (request, response) {
     else if (subPath == '/transact') {
         let uid = url.searchParams.get('uid');
         let pid = url.searchParams.get('pid');
-        if (uid === undefined || uid === 'null' || !pid || isNaN(pid) || parseInt(pid) >= products.length) {
+        if (uid === undefined || uid === 'null' || !pid || isNaN(pid) || parseInt(pid) > products.length) {
             response.writeHead(412);
             response.end('The user id or product id is not valid.');
             return;
