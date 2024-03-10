@@ -23,7 +23,8 @@ const MIME_TYPES = {
     '.eot': 'application/vnd.ms-fontobject',
     '.otf': 'application/font-otf',
     '.wasm': 'application/wasm',
-    '.ico' : 'image/x-icon',
+    '.ico': 'image/x-icon',
+    '.zip': 'application/zip',
 };
 
 const staticPaths = new Set(['/', '/style.css', '/script.js', '/privacy-policy.html']);
@@ -53,6 +54,24 @@ fs.promises.readFile('./secrets/products.json', 'utf-8').then(productData => {
     console.log(`Loaded ${products.length} products`);
 });
 
+const downloads = new Map();
+fs.promises.readFile('./downloads/downloads.tsv', 'utf-8').then(downloadData => {
+    for (const download of downloadData.split(/\r?\n/)) {
+        if (download !== '') {
+            let id = download.substring(0, download.indexOf('\t'));
+            let fileName = download.substring(download.indexOf('\t') + 1);
+            if (fs.existsSync('downloads/' + fileName)) {
+                downloads.set(id, fileName);
+                console.log(`Loaded ${id}: ${fileName}`);
+            }
+            else {
+                console.log(`Error loading ${id}: ${fileName}`);
+            }
+        }
+    }
+    console.log(`Loaded ${downloads.size} downloads`);
+});
+
 function loadFile(filePath) {
     try {
         let content = fs.promises.readFile(filePath, 'utf8');
@@ -64,6 +83,23 @@ function loadFile(filePath) {
     }
 }
 
+async function sendFile(response, filePath, fileExt, fileName = null) {
+    let content = await loadFile(filePath);
+    if (content === null) {
+        response.writeHead(500);
+        response.end('An unexpected error was encountered.');
+        return;
+    }
+    else {
+        let contentType = MIME_TYPES[fileExt] || 'application/octet-stream';
+        let responseHeaders = {'Content-Type': contentType};
+        if (fileName !== null) responseHeaders['Content-Disposition'] = `attachment;filename=${fileName}`;
+        response.writeHead(200, responseHeaders);
+        response.end(content, 'utf-8');
+        return;
+    }
+}
+
 http.createServer(async function (request, response) {
     let url = new URL('http://' + request.headers.host + request.url);
     let subPath = url.pathname;
@@ -71,19 +107,8 @@ http.createServer(async function (request, response) {
 
     if (staticPaths.has(subPath)) {
         if (subPath == '/') subPath = '/index.html';
-        let content = await loadFile('public' + subPath);
-        if (content === null) {
-            response.writeHead(500);
-            response.end('An unexpected error was encountered.');
-            return;
-        }
-        else {
-            let extname = String(path.extname(subPath)).toLowerCase();
-            let contentType = MIME_TYPES[extname] || 'application/octet-stream';
-            response.writeHead(200, {'Content-Type': contentType});
-            response.end(content, 'utf-8');        
-            return;    
-        }
+        sendFile(response, 'public' + subPath, String(path.extname(subPath)).toLowerCase());
+        return;
     }
     else if (subPath == '/data.json') {
         response.writeHead(200, {'Content-Type': 'application/json'});
@@ -182,10 +207,20 @@ http.createServer(async function (request, response) {
         response.writeHead(204);
         response.end();
     }
-    else {
-        response.writeHead(404);
-        response.end('Resource not found.');
-        return;
+    else if (subPath == '/download') {
+        let id = url.searchParams.get('id');
+        if (downloads.has(id)) {
+            let fileName = downloads.get(id);
+            sendFile(response, 'downloads/' + fileName, '.zip', fileName);
+            let ip = request.headers['x-forwarded-for'] || request.socket.remoteAddress;
+            fs.appendFile('downloads.log', `${new Date().toISOString()}\t${ip}\t${id}\t${fileName}\n`, () => console.log(`Served ${fileName}`));
+            return;
+        }
+        else {
+            response.writeHead(404);
+            response.end('No file with this id.');
+            return;
+        }
     }
 }).listen(PORT);
 console.log(`Server running on ${PORT}`);
