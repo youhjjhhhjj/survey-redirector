@@ -58,6 +58,7 @@ button:hover {
 
 #grid {
     display: flex;
+    min-height: 100%;
     flex-wrap: wrap;
     gap: 20px;
     box-sizing: border-box;

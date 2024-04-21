@@ -1,4 +1,5 @@
 const http = require('http');
+const https = require('https');
 const fs = require('fs');
 const path = require('path');
 const {v5: uuidv5} = require('uuid');
@@ -27,7 +28,7 @@ const MIME_TYPES = {
     '.zip': 'application/zip',
 };
 
-const staticPaths = new Set(['/', '/style.css', '/script.js', '/privacy-policy.html']);
+const staticPaths = new Set(['/', '/style.css', '/script.js', '/privacy-policy.html', '/admin', '/admin/script.js']);
 
 // CREATE TABLE Users ( id CHAR(17) PRIMARY KEY, username VARCHAR(63) NOT NULL, balance INTEGER NOT NULL DEFAULT 0 );
 // CREATE TABLE Transactions ( id SERIAL PRIMARY KEY, transaction_time TIMESTAMP NOT NULL, amount INTEGER NOT NULL, user_id CHAR(17) NOT NULL REFERENCES Users, product_id SMALLINT );
@@ -44,37 +45,47 @@ const transactionIds = new Set();
 
 const products = [];
 const productUrls = [];
-fs.promises.readFile('./secrets/products.json', 'utf-8').then(productData => {
-    JSON.parse(productData).forEach((product, i) => {
-        productUrls.push(product.url);
-        product.id = i + 1;
-        delete product.url;
-        products.push(product);
-    });
-    console.log(`Loaded ${products.length} products`);
-});
+setProducts();
 
-const downloads = new Map();
-fs.promises.readFile('./downloads/downloads.tsv', 'utf-8').then(downloadData => {
-    for (const download of downloadData.split(/\r?\n/)) {
-        if (download !== '') {
-            let id = download.substring(0, download.indexOf('\t'));
-            let fileName = download.substring(download.indexOf('\t') + 1);
-            if (fs.existsSync('downloads/' + fileName)) {
-                downloads.set(id, fileName);
-                console.log(`Loaded ${id}: ${fileName}`);
-            }
-            else {
-                console.log(`Error loading ${id}: ${fileName}`);
+const downloads = {};
+setDownloads();
+
+async function setProducts() {
+    fs.promises.readFile('./secrets/products.json', 'utf-8').then(productData => {
+        JSON.parse(productData).forEach((product, i) => {
+            productUrls.push(product.url);
+            product.id = i + 1;
+            delete product.url;
+            products.push(product);
+        });
+        console.log(`Loaded ${products.length} products`);
+    });
+}
+
+async function setDownloads() {
+    fs.promises.readFile('./downloads/downloads.tsv', 'utf-8').then(downloadData => {
+        let loadedDownloads = 0;
+        for (const download of downloadData.split(/\r?\n/)) {
+            if (download !== '') {
+                let id = download.substring(0, download.indexOf('\t'));
+                let fileName = download.substring(download.indexOf('\t') + 1);
+                if (fs.existsSync('downloads/' + fileName)) {
+                    downloads[id] = fileName;
+                    console.log(`Loaded ${id}: ${fileName}`);
+                    loadedDownloads++;
+                }
+                else {
+                    console.log(`Error loading ${id}: ${fileName}`);
+                }
             }
         }
-    }
-    console.log(`Loaded ${downloads.size} downloads`);
-});
+        console.log(`Loaded ${loadedDownloads} downloads`);
+    });
+}
 
 function loadFile(filePath) {
     try {
-        let content = fs.promises.readFile(filePath, 'utf8');
+        let content = fs.promises.readFile(filePath);
         return content;
     }
     catch(err) {
@@ -107,12 +118,18 @@ http.createServer(async function (request, response) {
 
     if (staticPaths.has(subPath)) {
         if (subPath == '/') subPath = '/index.html';
+        else if (subPath == '/admin') subPath = '/admin/index.html';
         sendFile(response, 'public' + subPath, String(path.extname(subPath)).toLowerCase());
         return;
     }
-    else if (subPath == '/data.json') {
+    else if (subPath == '/products.json') {
         response.writeHead(200, {'Content-Type': 'application/json'});
         response.end(JSON.stringify(products), 'utf-8');
+        return;
+    }
+    else if (subPath == '/downloads.json') {
+        response.writeHead(200, {'Content-Type': 'application/json'});
+        response.end(JSON.stringify(downloads), 'utf-8');
         return;
     }
     else if (subPath == '/lookup') {
@@ -209,8 +226,8 @@ http.createServer(async function (request, response) {
     }
     else if (subPath == '/download') {
         let id = url.searchParams.get('id');
-        if (downloads.has(id)) {
-            let fileName = downloads.get(id);
+        if (id in downloads) {
+            let fileName = downloads[id];
             sendFile(response, 'downloads/' + fileName, '.zip', fileName);
             let ip = request.headers['x-forwarded-for'] || request.socket.remoteAddress;
             fs.appendFile('downloads.log', `${new Date().toISOString()}\t${ip}\t${id}\t${fileName}\n`, () => console.log(`Served ${fileName}`));
@@ -221,6 +238,64 @@ http.createServer(async function (request, response) {
             response.end('No file with this id.');
             return;
         }
+    }
+    // TODO add link
+    else if (subPath == '/add-product') {
+        let name = url.searchParams.get('name');
+        let image = url.searchParams.get('image');
+        let price = url.searchParams.get('price');
+        let desc = url.searchParams.get('desc');
+        fs.promises.readFile('./secrets/products.json', 'utf-8').then(productData => {
+            let productsArray = JSON.parse(productData);
+            let product = {
+                'name': name,
+                'description': desc,
+                'price': price,
+                'image': image,
+            };
+            productsArray.push(product);
+            fs.promises.writeFile('./secrets/products.json', JSON.stringify(productsArray, null, '\t')).then(() => {
+                product.id = products.length + 1;
+                products.push(product);
+            });
+            console.log(`Added product ${name}`);
+            response.writeHead(200);
+            response.end(`${products.length + 2}`);
+            return;
+        }).catch(err => {
+            console.error(err.stack);
+            response.writeHead(500);
+            response.end('An unexpected error was encountered.');
+            return;
+        });
+    }
+    else if (subPath == '/add-download') {
+        let fileName = url.searchParams.get('filename');
+        let fileUrl = url.searchParams.get('url');
+        let fileUuid = uuidv5(fileUrl, UUID);
+
+        let downloadFileStream = fs.createWriteStream(path.join(path.basename('./downloads'), fileName));
+        console.log(path.join(path.basename('downloads'), fileName));
+        https.get(fileUrl, (downloadFile) => {
+            downloadFile.pipe(downloadFileStream);
+            downloadFileStream.on('finish', () => {
+                downloadFileStream.close();
+                fs.appendFile('./downloads/downloads.tsv', `\n${fileUuid}\t${fileName}`, (e) => {
+                    if (e) console.error(e.stack);
+                    else {
+                        setDownloads();
+                        response.writeHead(200);
+                        response.end(fileUuid);
+                        return;
+                    }
+                });
+            });
+        }).on('error', function(err) {
+            console.error(err.stack);
+            response.writeHead(500);
+            response.end('An unexpected error was encountered.');
+            return;
+        });
     }
 }).listen(PORT);
 console.log(`Server running on ${PORT}`);

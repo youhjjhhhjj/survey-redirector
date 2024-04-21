@@ -66,7 +66,7 @@ function hidePopups() {
 }
 
 
-fetch(url.origin + '/data.json').then(response => {return response.json();}).then(products => {
+fetch(url.origin + '/products.json').then(response => {return response.json();}).then(products => {
     products.findLast(product => {
         let productDiv = jQuery(`<div class="preview"> <h2>${product.name}</h2> <img src=${product.image}> <div class="price-tag">$${product.price}</div></div>`);
         productDiv.bind('click', () => {
