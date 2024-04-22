@@ -8,6 +8,7 @@ const pg = require('pg');
 const PORT = process.env.PORT || 6969;
 const UUID = process.env.UUID || require('./secrets/uuid.json');
 const DATABASE_URL = process.env.DATABASE_URL || require('./secrets/database-url.json');
+const ADMIN_PASSWORD_HASH = process.env.ADMIN_PASSWORD_HASH || require('./secrets/password-hash.json');
 const MIME_TYPES = {
     '.html': 'text/html',
     '.js': 'text/javascript',
@@ -111,6 +112,16 @@ async function sendFile(response, filePath, fileExt, fileName = null) {
     }
 }
 
+function authenticateRequest(request, response) {
+    if (uuidv5(request.headers.authorization, UUID) !== ADMIN_PASSWORD_HASH) {
+        console.log('Authentication failure');
+        response.writeHead(401);
+        response.end();
+        return false;
+    }
+    return true;
+}
+
 http.createServer(async function (request, response) {
     let url = new URL('http://' + request.headers.host + request.url);
     let subPath = url.pathname;
@@ -119,7 +130,7 @@ http.createServer(async function (request, response) {
     if (staticPaths.has(subPath)) {
         if (subPath == '/') subPath = '/index.html';
         else if (subPath == '/admin') subPath = '/admin/index.html';
-        sendFile(response, 'public' + subPath, String(path.extname(subPath)).toLowerCase());
+        sendFile(response, 'public' + subPath, path.extname(subPath).toLowerCase());
         return;
     }
     else if (subPath == '/products.json') {
@@ -128,6 +139,7 @@ http.createServer(async function (request, response) {
         return;
     }
     else if (subPath == '/downloads.json') {
+        if (!authenticateRequest(request, response)) return;
         response.writeHead(200, {'Content-Type': 'application/json'});
         response.end(JSON.stringify(downloads), 'utf-8');
         return;
@@ -228,7 +240,7 @@ http.createServer(async function (request, response) {
         let id = url.searchParams.get('id');
         if (id in downloads) {
             let fileName = downloads[id];
-            sendFile(response, 'downloads/' + fileName, '.zip', fileName);
+            sendFile(response, 'downloads/' + fileName, path.extname(fileName), fileName);
             let ip = request.headers['x-forwarded-for'] || request.socket.remoteAddress;
             fs.appendFile('downloads.log', `${new Date().toISOString()}\t${ip}\t${id}\t${fileName}\n`, () => console.log(`Served ${fileName}`));
             return;
@@ -241,6 +253,7 @@ http.createServer(async function (request, response) {
     }
     // TODO add link
     else if (subPath == '/add-product') {
+        if (!authenticateRequest(request, response)) return;
         let name = url.searchParams.get('name');
         let image = url.searchParams.get('image');
         let price = url.searchParams.get('price');
@@ -270,6 +283,7 @@ http.createServer(async function (request, response) {
         });
     }
     else if (subPath == '/add-download') {
+        if (!authenticateRequest(request, response)) return;
         let fileName = url.searchParams.get('filename');
         let fileUrl = url.searchParams.get('url');
         let fileUuid = uuidv5(fileUrl, UUID);
