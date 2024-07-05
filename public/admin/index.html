@@ -1,52 +1,52 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<head>
-  <title>Administration</title>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
-  <link rel="stylesheet" href="style.css">
-  <link rel="icon" type="image/x-icon" href="https://cdn.discordapp.com/emojis/801499706625622046.webp?quality=lossless">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
-  <script defer src="admin/script.js"></script>
-</head>
+  <head>
+    <title>Administration</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/x-icon" href="https://cdn.discordapp.com/emojis/801499706625622046.webp?quality=lossless">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <script defer src="admin/script.js"></script>
+  </head>
 
-<body>
-  <div class="header" style="position: fixed; z-index: 6; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.5);">
-    <img src="https://cdn.discordapp.com/emojis/801499706625622046.webp?quality=lossless" alt="icon" width="32" height="32" style="margin-left: 20%;">
-    <h1 style="margin-left: 15px;">Administration</h1>
-  </div>
-
-  <div id="grid">
-    <div id="products" style="display: inline-block">
-      <p>Add Product</p>
-      <form id=products-form style="">
-        <label for="name">name:</label><br>
-        <input type="text" id="name" name="name"><br>
-        <label for="image">image:</label><br>
-        <input type="text" id="image" name="image"><br>
-        <label for="price">price:</label><br>
-        <input type="text" id="price" name="price"><br>
-        <label for="desc">description:</label><br>
-        <textarea id="desc" name="desc"></textarea>
-        <input type="submit">
-      </form>
+  <body>
+    <div class="header" style="position: fixed; z-index: 6; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.5);">
+      <img src="https://cdn.discordapp.com/emojis/801499706625622046.webp?quality=lossless" alt="icon" width="32" height="32" style="margin-left: 20%;">
+      <h1 style="margin-left: 15px;">Administration</h1>
     </div>
-    <div id="downloads" style="display: inline-block">
-      <p>Add Download</p>
-      <form id=downloads-form style="">
-        <label for="filename">filename:</label><br>
-        <input type="text" id="filename" name="filename"><br>
-        <label for="url">url:</label><br>
-        <input type="text" id="url" name="url"><br>
-        <input type="submit">
-      </form>
+
+    <div id="grid">
+      <div id="products" style="display: inline-block">
+        <p>Add Product</p>
+        <form id=products-form style="">
+          <label for="name">name:</label><br>
+          <input type="text" id="name" name="name"><br>
+          <label for="image">image:</label><br>
+          <input type="text" id="image" name="image"><br>
+          <label for="price">price:</label><br>
+          <input type="text" id="price" name="price"><br>
+          <label for="desc">description:</label><br>
+          <textarea id="desc" name="desc"></textarea>
+          <input type="submit">
+        </form>
+      </div>
+      <div id="downloads" style="display: inline-block">
+        <p>Add Download</p>
+        <form id=downloads-form style="">
+          <label for="filename">filename:</label><br>
+          <input type="text" id="filename" name="filename"><br>
+          <label for="url">url:</label><br>
+          <input type="text" id="url" name="url"><br>
+          <input type="submit">
+        </form>
+      </div>
     </div>
-  </div>
 
-  <div id="footer"><a href="https://discord.gg/leagueskinsnsfw" target="_blank">Discord</a></div>
+    <div id="footer"><a href="https://discord.gg/leagueskinsnsfw" target="_blank">Discord</a></div>
 
-</body>
+  </body>
 
 </html>

@@ -241,3 +241,7 @@ button:hover {
 .points-button:hover {
     filter: brightness(75%);
 }
+
+.download-link {
+    line-height: 1.5;
+}

@@ -28,8 +28,22 @@ const MIME_TYPES = {
     '.ico': 'image/x-icon',
     '.zip': 'application/zip',
 };
+const staticPaths = new Set([
+    '/', 
+    '/style.css', 
+    '/script.js', 
+    '/privacy-policy.html', 
+    '/admin', 
+    '/admin/script.js',
+]);
 
-const staticPaths = new Set(['/', '/style.css', '/script.js', '/privacy-policy.html', '/admin', '/admin/script.js']);
+class Download {
+    constructor(id, name, children=[]) {
+        this.id = id;
+        this.name = name;
+        this.children = children;
+    }
+}
 
 // CREATE TABLE Users ( id CHAR(17) PRIMARY KEY, username VARCHAR(63) NOT NULL, balance INTEGER NOT NULL DEFAULT 0 );
 // CREATE TABLE Transactions ( id SERIAL PRIMARY KEY, transaction_time TIMESTAMP NOT NULL, amount INTEGER NOT NULL, user_id CHAR(17) NOT NULL REFERENCES Users, product_id SMALLINT );
@@ -39,7 +53,7 @@ const pgClient = new pg.Pool({
         rejectUnauthorized: false
     }
 });
-pgClient.connect().then(() => console.log('Database connection established')).catch(() => console.log('Database connection failed'));
+//pgClient.connect().then(() => console.log('Database connection established')).catch(() => console.log('Database connection failed'));
 
 const registerTimeouts = new Set();
 const transactionIds = new Set();
@@ -48,7 +62,8 @@ const products = [];
 const productUrls = [];
 setProducts();
 
-const downloads = {};
+const downloadNames = {};  // id to name
+const downloads = {};  // name to object
 setDownloads();
 
 async function setProducts() {
@@ -63,15 +78,37 @@ async function setProducts() {
     });
 }
 
+/**
+ * 
+ * @param {String} str the string to split
+ * @param {String} sep the string to split on
+ * @param {Boolean} includeSep whether to include the separator in the first returned value
+ * @param {Boolean} ignoreEndSep whether to ignore the last separator if found at the end of the string
+ * @returns the string split once at the last occurence of the separator
+ */
+function split(str, sep, includeSep=false, ignoreEndSep=true) {
+    splitIndex = str.lastIndexOf(sep);
+    if (ignoreEndSep && splitIndex + sep.length == str.length) splitIndex = str.slice(0, -sep.length).lastIndexOf(sep);
+    if (splitIndex == -1) return [null, str];
+    return [str.substring(0, splitIndex + includeSep * sep.length), str.substring(splitIndex + sep.length, str.length)];
+}
+
 async function setDownloads() {
     fs.promises.readFile('./downloads/downloads.tsv', 'utf-8').then(downloadData => {
         let loadedDownloads = 0;
         for (const download of downloadData.split(/\r?\n/)) {
             if (download !== '') {
-                let id = download.substring(0, download.indexOf('\t'));
-                let fileName = download.substring(download.indexOf('\t') + 1);
+                let [id, fileName] = split(download, '\t');
                 if (fs.existsSync('downloads/' + fileName)) {
-                    downloads[id] = fileName;
+                    downloadNames[id] = fileName;
+                    let downloadObject = new Download(id, fileName);
+                    downloads[fileName] = downloadObject;
+                    // add to parent
+                    let parent = split(fileName, '/', true)[0];
+                    if (parent !== null) {
+                        downloads[parent].children.push(downloadObject);
+                    }
+                    // finish up
                     console.log(`Loaded ${id}: ${fileName}`);
                     loadedDownloads++;
                 }
@@ -122,6 +159,39 @@ function authenticateRequest(request, response) {
     return true;
 }
 
+function downloadDFS(download, arr=[], root=true) {
+    if (!root) arr.push(download);
+    for (child of download.children) downloadDFS(child, arr, false);
+    return arr;
+}
+
+function generateDownloadPage(download) {
+    contents = "";
+    for (const ancestor of downloadDFS(download)) {
+        contents += `<a class="download-link" href="download?id=${ancestor.id}">${ancestor.name}</a><br>\n`
+    };
+    return `<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <title>Download</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
+    <link rel="stylesheet" href="../style.css">
+    <link rel="icon" type="image/x-icon" href="https://cdn.discordapp.com/emojis/801499706625622046.webp?quality=lossless">
+  </head>
+
+  <body>
+    <div id="grid" style="display: block; text-align: center;">
+      <h1>Download Links for ${download.name}</h1><br>
+      ${contents}
+    </div>
+  </body>
+
+</html>`;
+}
+
 http.createServer(async function (request, response) {
     let url = new URL('http://' + request.headers.host + request.url);
     let subPath = url.pathname;
@@ -141,7 +211,7 @@ http.createServer(async function (request, response) {
     else if (subPath == '/downloads.json') {
         if (!authenticateRequest(request, response)) return;
         response.writeHead(200, {'Content-Type': 'application/json'});
-        response.end(JSON.stringify(downloads), 'utf-8');
+        response.end(JSON.stringify(downloadNames), 'utf-8');
         return;
     }
     else if (subPath == '/lookup') {
@@ -238,9 +308,15 @@ http.createServer(async function (request, response) {
     }
     else if (subPath == '/download') {
         let id = url.searchParams.get('id');
-        if (id in downloads) {
-            let fileName = downloads[id];
-            sendFile(response, 'downloads/' + fileName, path.extname(fileName), fileName);
+        if (id in downloadNames) {
+            let fileName = downloadNames[id];
+            let download = downloads[fileName];
+            if (download.children.length > 0) {
+                response.writeHead(200, {'Content-Type': 'text/html'});
+                response.end(generateDownloadPage(download));
+                return;
+            }
+            sendFile(response, 'downloads/' + fileName, path.extname(fileName), split(fileName, '/')[1]);
             let ip = request.headers['x-forwarded-for'] || request.socket.remoteAddress;
             fs.appendFile('downloads.log', `${new Date().toISOString()}\t${ip}\t${id}\t${fileName}\n`, () => console.log(`Served ${fileName}`));
             return;
@@ -288,8 +364,29 @@ http.createServer(async function (request, response) {
         let fileUrl = url.searchParams.get('url');
         let fileUuid = uuidv5(fileUrl, UUID);
 
-        let downloadFileStream = fs.createWriteStream(path.join(path.basename('./downloads'), fileName));
-        console.log(path.join(path.basename('downloads'), fileName));
+        // create folders
+        let pathComponents = fileName.split('/');
+        let relPath = '';
+        let fullPath;
+        for (let i = 0; i < pathComponents.length; i++) {
+            relPath += pathComponents[i];
+            fullPath = path.join(path.basename('./downloads'), relPath);
+            if (i === pathComponents.length - 1) break;
+            relPath += '/';
+            if (!fs.existsSync(fullPath)) {
+                fs.mkdir(fullPath, (e) => {
+                    if (e) console.error(e.stack);
+                });
+                let dirUuid = uuidv5(relPath, UUID);
+                fs.appendFile('./downloads/downloads.tsv', `\n${dirUuid}\t${relPath}`, (e) => {
+                    if (e) console.error(e.stack);
+                });
+            }
+        }
+
+        // download file
+        console.log(fullPath);
+        let downloadFileStream = fs.createWriteStream(fullPath);
         https.get(fileUrl, (downloadFile) => {
             downloadFile.pipe(downloadFileStream);
             downloadFileStream.on('finish', () => {
