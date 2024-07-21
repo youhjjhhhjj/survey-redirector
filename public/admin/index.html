@@ -19,9 +19,13 @@
     </div>
 
     <div id="grid">
-      <div id="products" style="display: inline-block">
+      <div style="margin-left: 25%; margin-right: 25%;">
+        <button id=refresh-local-button style="background-color: #949494;">Refresh Local</button>
+        <button id=refresh-full-button style="background-color: #949494;">Refresh Full</button>
+      </div>
+      <div style="display: inline-block">
         <p>Add Product</p>
-        <form id=products-form style="">
+        <form id=products-form>
           <label for="name">name:</label><br>
           <input type="text" id="name" name="name"><br>
           <label for="image">image:</label><br>
@@ -32,16 +36,18 @@
           <textarea id="desc" name="desc"></textarea>
           <input type="submit">
         </form>
+        <div id="products-list"></div>
       </div>
-      <div id="downloads" style="display: inline-block">
+      <div style="display: inline-block">
         <p>Add Download</p>
-        <form id=downloads-form style="">
+        <form id=downloads-form>
           <label for="filename">filename:</label><br>
           <input type="text" id="filename" name="filename"><br>
           <label for="url">url:</label><br>
           <input type="text" id="url" name="url"><br>
           <input type="submit">
         </form>
+        <div id="downloads-list"></div>
       </div>
     </div>
 

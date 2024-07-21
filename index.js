@@ -58,25 +58,13 @@ const pgClient = new pg.Pool({
 const registerTimeouts = new Set();
 const transactionIds = new Set();
 
-const products = [];
-const productUrls = [];
+var products;
+var productUrls;
 setProducts();
 
-const downloadNames = {};  // id to name
-const downloads = {};  // name to object
+var downloadNames;  // id to name
+var downloads;  // name to object
 setDownloads();
-
-async function setProducts() {
-    fs.promises.readFile('./secrets/products.json', 'utf-8').then(productData => {
-        JSON.parse(productData).forEach((product, i) => {
-            productUrls.push(product.url);
-            product.id = i + 1;
-            delete product.url;
-            products.push(product);
-        });
-        console.log(`Loaded ${products.length} products`);
-    });
-}
 
 /**
  * 
@@ -93,7 +81,23 @@ function split(str, sep, includeSep=false, ignoreEndSep=true) {
     return [str.substring(0, splitIndex + includeSep * sep.length), str.substring(splitIndex + sep.length, str.length)];
 }
 
+async function setProducts() {
+    products = [];
+    productUrls = [];
+    fs.promises.readFile('./secrets/products.json', 'utf-8').then(productData => {
+        JSON.parse(productData).forEach((product, i) => {
+            productUrls.push(product.url);
+            product.id = i + 1;
+            delete product.url;
+            products.push(product);
+        });
+        console.log(`Loaded ${products.length} products`);
+    });
+}
+
 async function setDownloads() {
+    downloadNames = {};
+    downloads = {};
     fs.promises.readFile('./downloads/downloads.tsv', 'utf-8').then(downloadData => {
         let loadedDownloads = 0;
         for (const download of downloadData.split(/\r?\n/)) {
@@ -108,8 +112,6 @@ async function setDownloads() {
                     if (parent !== null) {
                         downloads[parent].children.push(downloadObject);
                     }
-                    // finish up
-                    console.log(`Loaded ${id}: ${fileName}`);
                     loadedDownloads++;
                 }
                 else {
@@ -407,6 +409,12 @@ http.createServer(async function (request, response) {
             response.end('An unexpected error was encountered.');
             return;
         });
+    }
+    else if (subPath == '/refresh') {
+        if (!authenticateRequest(request, response)) return;
+
+        Promise.all([setProducts(), setDownloads()]).then(() => response.writeHead(200)).catch(() => response.writeHead(500));
+        response.end();
     }
 }).listen(PORT);
 console.log(`Server running on ${PORT}`);
