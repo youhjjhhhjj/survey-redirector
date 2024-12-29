@@ -3,7 +3,7 @@ const downloadsDiv = jQuery('#downloads-list');
 
 const url = new URL(window.location);
 
-const passwordHeader = {headers: {Authorization: prompt('Enter the admin password')}};
+const passwordHeader = {Authorization: prompt('Enter the admin password')};
 
 function fetchProducts() {
     productsDiv.empty();
@@ -22,7 +22,7 @@ function fetchProducts() {
 function fetchDownloads() {
     downloadsDiv.empty();
     // fetch list of downloads
-    fetch(url.origin + '/downloads.json', passwordHeader).then(response => {
+    fetch(url.origin + '/downloads.json', {headers: passwordHeader}).then(response => {
         if (response.status == 401) return alert('Failed to authenticate');
         if (response.status != 200) return alert('Something went wrong');
         response.json().then(downloads => {
@@ -39,7 +39,7 @@ fetchDownloads();
 
 jQuery('#products-form').submit(function(e) {
     e.preventDefault();
-    fetch(`${url.origin}/add-product?${jQuery(this).serialize()}`, passwordHeader).then(response => {
+    fetch(`${url.origin}/add-product?${jQuery(this).serialize()}`, {headers: passwordHeader, method: "POST"}).then(response => {
         if (response.status == 401) return alert('Failed to authenticate');
         if (response.status != 200) return alert('Something went wrong');
         response.text().then(productId => {
@@ -52,7 +52,7 @@ jQuery('#products-form').submit(function(e) {
 
 jQuery('#downloads-form').submit(function(e) {
     e.preventDefault();
-    fetch(`${url.origin}/add-download?${jQuery(this).serialize()}`, passwordHeader).then(response => {
+    fetch(`${url.origin}/add-download?${jQuery(this).serialize()}`, {headers: passwordHeader, method: "POST"}).then(response => {
         if (response.status == 401) return alert('Failed to authenticate');
         if (response.status != 200) return alert('Something went wrong');
         response.text().then(uuid => {
@@ -63,14 +63,14 @@ jQuery('#downloads-form').submit(function(e) {
     });
 });
 
-jQuery('#refresh-local-button').click(function(e) {
+jQuery('#refresh-local-button', {method: "POST"}).click(function(e) {
     fetchProducts();
     fetchDownloads();
     alert('Refreshed local');
 });
 
 jQuery('#refresh-full-button').click(function(e) {
-    fetch(`${url.origin}/refresh`, passwordHeader).then(response => {
+    fetch(`${url.origin}/refresh`, {headers: passwordHeader, method: "POST"}).then(response => {
         if (response.status == 401) return alert('Failed to authenticate');
         if (response.status != 200) return alert('Something went wrong');
         fetchProducts();

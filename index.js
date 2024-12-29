@@ -29,11 +29,11 @@ const MIME_TYPES = {
     '.zip': 'application/zip',
 };
 const staticPaths = new Set([
-    '/', 
-    '/style.css', 
-    '/script.js', 
-    '/privacy-policy.html', 
-    '/admin', 
+    '/',
+    '/style.css',
+    '/script.js',
+    '/privacy-policy.html',
+    '/admin',
     '/admin/script.js',
 ]);
 
@@ -152,13 +152,11 @@ async function sendFile(response, filePath, fileExt, fileName = null) {
 }
 
 function authenticateRequest(request, response) {
-    if (uuidv5(request.headers.authorization, UUID) !== ADMIN_PASSWORD_HASH) {
-        console.log('Authentication failure');
-        response.writeHead(401);
-        response.end();
-        return false;
-    }
-    return true;
+    if (request.headers.authorization && uuidv5(request.headers.authorization, UUID) == ADMIN_PASSWORD_HASH) return true;
+    console.log('Authentication failure');
+    response.writeHead(401);
+    response.end();
+    return false;
 }
 
 function downloadDFS(download, arr=[], root=true) {
@@ -194,29 +192,42 @@ function generateDownloadPage(download) {
 </html>`;
 }
 
+function validateMethod(method, request, response) {
+    if (request.method != method) {
+        response.writeHead(405);
+        response.end();
+        return false;
+    }
+    return true;
+}
+
 http.createServer(async function (request, response) {
     let url = new URL('http://' + request.headers.host + request.url);
     let subPath = url.pathname;
     console.log(`(${new Date().toISOString()}) request: ${request.url}`);
 
     if (staticPaths.has(subPath)) {
+        if (!validateMethod('GET', request, response)) return;
         if (subPath == '/') subPath = '/index.html';
         else if (subPath == '/admin') subPath = '/admin/index.html';
         sendFile(response, 'public' + subPath, path.extname(subPath).toLowerCase());
         return;
     }
     else if (subPath == '/products.json') {
+        if (!validateMethod('GET', request, response)) return;
         response.writeHead(200, {'Content-Type': 'application/json'});
         response.end(JSON.stringify(products), 'utf-8');
         return;
     }
     else if (subPath == '/downloads.json') {
+        if (!validateMethod('GET', request, response)) return;
         if (!authenticateRequest(request, response)) return;
         response.writeHead(200, {'Content-Type': 'application/json'});
         response.end(JSON.stringify(downloadNames), 'utf-8');
         return;
     }
     else if (subPath == '/lookup') {
+        if (!validateMethod('GET', request, response)) return;
         let uid = url.searchParams.get('uid');
         pgClient.query('SELECT * FROM Users WHERE id = $1;', [uid]).then(data => {
             if (data.rowCount == 0) {
@@ -309,6 +320,7 @@ http.createServer(async function (request, response) {
         response.end();
     }
     else if (subPath == '/download') {
+        if (!validateMethod('GET', request, response)) return;
         let id = url.searchParams.get('id');
         if (id in downloadNames) {
             let fileName = downloadNames[id];
@@ -324,13 +336,15 @@ http.createServer(async function (request, response) {
             return;
         }
         else {
-            response.writeHead(404);
-            response.end('No file with this id.');
+            // timeout on purpose
+            // response.writeHead(404);
+            // response.end('No file with this id.');
             return;
         }
     }
     // TODO add link
-    else if (subPath == '/add-product') {
+    else if (subPath == '/add-product') {  // TODO implement json body
+        if (!validateMethod('POST', request, response)) return;
         if (!authenticateRequest(request, response)) return;
         let name = url.searchParams.get('name');
         let image = url.searchParams.get('image');
@@ -360,7 +374,8 @@ http.createServer(async function (request, response) {
             return;
         });
     }
-    else if (subPath == '/add-download') {
+    else if (subPath == '/add-download') {  // TODO implement json body
+        if (!validateMethod('POST', request, response)) return;
         if (!authenticateRequest(request, response)) return;
         let fileName = url.searchParams.get('filename');
         let fileUrl = url.searchParams.get('url');
@@ -411,6 +426,7 @@ http.createServer(async function (request, response) {
         });
     }
     else if (subPath == '/refresh') {
+        if (!validateMethod('POST', request, response)) return;
         if (!authenticateRequest(request, response)) return;
 
         Promise.all([setProducts(), setDownloads()]).then(() => response.writeHead(200)).catch(() => response.writeHead(500));
