@@ -75,7 +75,7 @@ setDownloads();
  * @returns the string split once at the last occurence of the separator
  */
 function split(str, sep, includeSep=false, ignoreEndSep=true) {
-    splitIndex = str.lastIndexOf(sep);
+    let splitIndex = str.lastIndexOf(sep);
     if (ignoreEndSep && splitIndex + sep.length == str.length) splitIndex = str.slice(0, -sep.length).lastIndexOf(sep);
     if (splitIndex == -1) return [null, str];
     return [str.substring(0, splitIndex + includeSep * sep.length), str.substring(splitIndex + sep.length, str.length)];
@@ -161,15 +161,15 @@ function authenticateRequest(request, response) {
 
 function downloadDFS(download, arr=[], root=true) {
     if (!root) arr.push(download);
-    for (child of download.children) downloadDFS(child, arr, false);
+    for (let child of download.children) downloadDFS(child, arr, false);
     return arr;
 }
 
 function generateDownloadPage(download) {
-    contents = "";
+    let contents = '';
     for (const ancestor of downloadDFS(download)) {
-        contents += `<a class="download-link" href="download?id=${ancestor.id}">${ancestor.name}</a><br>\n`
-    };
+        contents += `<a class="download-link" href="download?id=${ancestor.id}">${ancestor.name}</a><br>\n`;
+    }
     return `<!DOCTYPE html>
 <html lang="en">
 
@@ -408,15 +408,22 @@ http.createServer(async function (request, response) {
             downloadFile.pipe(downloadFileStream);
             downloadFileStream.on('finish', () => {
                 downloadFileStream.close();
-                fs.appendFile('./downloads/downloads.tsv', `\n${fileUuid}\t${fileName}`, (e) => {
-                    if (e) console.error(e.stack);
-                    else {
-                        setDownloads();
-                        response.writeHead(200);
-                        response.end(fileUuid);
-                        return;
-                    }
-                });
+                if (downloads.has(fileName)) {
+                    response.writeHead(200);
+                    response.end(downloads[fileName].id);
+                    return;
+                }
+                else {
+                    fs.appendFile('./downloads/downloads.tsv', `\n${fileUuid}\t${fileName}`, (e) => {
+                        if (e) console.error(e.stack);
+                        else {
+                            setDownloads();
+                            response.writeHead(200);
+                            response.end(fileUuid);
+                            return;
+                        }
+                    });
+                }
             });
         }).on('error', function(err) {
             console.error(err.stack);
